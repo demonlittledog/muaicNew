@@ -1,0 +1,135 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: dell
+  Date: 2018/11/6
+  Time: 0:50
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<html>
+<head>
+    <title>Title</title>
+    <link href="${pageContext.request.contextPath }/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript">
+    function validatePassword() {
+        var password = document.getElementById("password").value;
+        $('#spassword').html("");
+        if(password.trim()==null||password.trim().length==0){
+            $('#spassword').html("密码不能为空！");
+            return false;
+        }else if(password.trim().length<6){
+            $('#spassword').html("密码长度至少6位！");
+            return false;
+        }
+        return true;
+
+    }
+    function validateTeahcerName() {
+        var teaManName=document.getElementById("teaManName").value;
+        $('#steaManName').html("");
+        if(teaManName==null || teaManName.length==0){
+            $('#steaManName').html("请输入老师姓名！");
+            return false;
+        }
+        return true;
+    }
+    function validatePhone() {
+        var flag = false;
+        var teaManPhone=document.getElementById("teaManPhone").value;
+        $('#steaManPhone').html("");
+        var reg=/^1[3|4|5|7|8][0-9]{9}$/;
+        if(reg.test(teaManPhone)){
+            $.ajax({
+                type:"get",
+                url:"${pageContext.request.contextPath }/checkTeaManPhone.do",
+                data:{"teaManPhone":teaManPhone},
+                dataType:"text",
+                contentType : "application/text;charset=utf-8",
+                async: false,
+                success:function (result) {
+                    $('#steaManPhone').html(result);
+                    if($('#steaManPhone').text().trim()=="手机号已存在"){
+                        flag = false;
+                    }else{
+                        flag = true;
+                    }
+                }
+            })
+        }else{
+            $('#steaManPhone').html("请输入正确的手机号！");
+            flag = false;
+        }
+        return flag;
+    }
+    function validateDate() {
+        var teaManBirthdate = document.getElementById("teaManBirthdate").value;
+        $('#steaManBirthdate').html("");
+        if(teaManBirthdate==null || teaManBirthdate.length==0){
+            $('#steaManBirthdate').html("请输入出生日期！");
+            return false;
+        }
+        return true;
+    }
+
+    $(document).ready(function () {
+        $("#teaManPhone").blur(validatePhone);
+        $("#password").blur(validatePassword);
+        $("#teaManName").blur(validateTeahcerName);
+        $("#teaManBirthdate").blur(validateDate);
+    })
+
+    function check() {
+        var flag = true;
+        if(!validatePhone()){
+            flag = false;
+        }
+        if(!validatePassword()){
+            flag = false;
+        }
+        if(!validateTeahcerName()){
+            flag = false;
+        }
+        if(!validateDate()){
+            flag = false;
+        }
+        return  flag;
+    }
+</script>
+<body>
+<jsp:include page="/jsp/teaManAccess.jsp"></jsp:include>
+<div class="place">
+    <span>增加老师信息</span>
+</div>
+<div class="formbody">
+
+    <div class="formtitle"><span>基本信息</span></div>
+    <form action="${pageContext.request.contextPath }/addTeacherInfo.do" method="post" name="form7" id="form7">
+        <ul class="forminfo">
+            <li><label>老师手机号</label><input name="teaManPhone" id="teaManPhone" type="text" class="dfinput" /><i><span id="steaManPhone"></span></i></li>
+            <li><label>密码登录用</label><input name="password" id="password" type="text" class="dfinput" /><i><span id="spassword"></span></i></li>
+            <li><label>老师姓名</label><input name="teaManName" id="teaManName" type="text" class="dfinput" /><i><span id="steaManName"></span></i></li>
+            <li><label>老师性别</label>
+                <input type="radio" name="teaManSex" value="1" checked  class="sex"/>男
+                <input type="radio" name="teaManSex" value="2"  style="margin-left:30px;" class="sex"/>女
+            </li>
+            <li><label>老师出生日期</label>
+                <input type="date" name="teaManBirthdate" id="teaManBirthdate" class="dfinput" />
+                <i><span id="steaManBirthdate"></span></i>
+            </li>
+            <li><label>用户状态</label>
+                <input type="radio" name="status" value="1" class="sex"  checked />正常
+                <input type="radio" name="status" value="0"  style="margin-left:20px;" class="sex" />冻结
+            </li>
+
+            <li><label>&nbsp;</label>
+                <input type="submit" name="submit" value="提交" style="width:137px;height:35px; background:url(${pageContext.request.contextPath }/images/btnbg.png) no-repeat; font-size:14px;font-weight:bold;color:#fff; cursor:pointer;" class="btn btn-primary" onclick="return check()"/>
+                <input type="button" name="button" value="返回" class="btn btn-primary" onclick="javascript:location.href='${pageContext.request.contextPath }/queryStudentInfo.do'"/>
+            </li>
+        </ul>
+    </form>
+</div>
+</body>
+</html>
